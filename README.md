@@ -232,4 +232,3 @@ This Docker setup enables the development and testing of a fullstack todo applic
 * Isolated container networking
 * Built-in testing to validate service operation
 
-Ensure this setup is running locally during your interview, as you will be required to demonstrate it.
