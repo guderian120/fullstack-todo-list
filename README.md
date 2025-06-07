@@ -182,11 +182,6 @@ Expected result: HTTP status code `200` for backend and frontend endpoints.
 
 ---
 
-## 9. Live Deployment
-
-Here is the revised **Live Deployment** section with detailed deployment methodologies included:
-
----
 
 ## 9. Live Deployment
 
