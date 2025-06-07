@@ -94,8 +94,8 @@ docker-compose up --build
 
 Access the application using:
 
-* Frontend: [http://localhost:3000](http://localhost:3000)
-* Backend: [http://localhost:5000](http://localhost:5000)
+* Frontend: [http://localhost:8000](http://localhost:8000)
+* Backend: [http://localhost:3000](http://localhost:3000)
 * MongoDB: Accessible at port 27017 (for development purposes)
 
 ### 5.2 Stop and Cleanup
@@ -122,8 +122,8 @@ docker-compose down -v
 
   | Service  | Host Port | Container Port |
   | -------- | --------- | -------------- |
-  | Frontend | 3000      | 3000           |
-  | Backend  | 5000      | 5000           |
+  | Frontend | 3000      | 8000           |
+  | Backend  | 5000      | 3000           |
   | Database | 27017     | 27017          |
 
 * **Environment Variables**:
@@ -176,7 +176,7 @@ This script performs:
 
 * MongoDB connectivity check using `mongosh`
 * Backend API check at `/api/gettodos`
-* Frontend availability check on port 3000
+* Frontend availability check on port 8000
 
 Expected result: HTTP status code `200` for backend and frontend endpoints.
 
@@ -184,11 +184,42 @@ Expected result: HTTP status code `200` for backend and frontend endpoints.
 
 ## 9. Live Deployment
 
-The application is also deployed and accessible at:
+Here is the revised **Live Deployment** section with detailed deployment methodologies included:
+
+---
+
+## 9. Live Deployment
+
+The application is deployed on AWS using a Virtual Private Cloud (VPC) with the following architecture:
+
+### Deployment Architecture
+
+* **VPC**: A custom VPC was created to isolate and manage network resources securely.
+* **Subnets**:
+
+  * **Public Subnet**: Hosts the **frontend** and **backend** services. These are exposed to the internet via a public IP and an Application Load Balancer (ALB).
+  * **Private Subnet**: Hosts the **MongoDB database** to prevent direct internet access. This enhances security by restricting exposure to external threats.
+* **Security Groups**:
+
+  * Configured to allow only necessary traffic. For instance, the backend can communicate with the database over the internal network, and the frontend can call the backend APIs.
+* **Internet Gateway**: Attached to the VPC to enable internet access for instances in the public subnet.
+* **NAT Gateway**: Allows instances in the private subnet (e.g., MongoDB) to initiate outbound traffic for updates without being exposed to the internet.
+
+### Hosting
+
+* **Frontend**: Served using an Nginx container running in the public subnet, accessible via a domain mapped using a DNS record pointing to the ALB.
+* **Backend**: Also hosted in the public subnet with API routes protected via security group rules and environment-level secrets.
+* **Database**: Runs securely in a private subnet. Only backend services within the VPC can access it.
+
+### Access URL
+
+The application is publicly accessible via the following endpoint:
 
 **[https://todo.34.245.120.229.sslip.io](https://todo.34.245.120.229.sslip.io)**
 
----
+SSL termination is handled at the load balancer level, and domain routing is managed via Route 53 and DNS resolution through sslip.io for demonstration purposes.
+
+
 
 ## 10. Summary
 
