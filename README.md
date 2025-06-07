@@ -1,40 +1,204 @@
-<p align="center">
-    <img src="https://user-images.githubusercontent.com/62269745/174906065-7bb63e14-879a-4740-849c-0821697aeec2.png#gh-light-mode-only" width="40%">
-    <img src="https://user-images.githubusercontent.com/62269745/174906068-aad23112-20fe-4ec8-877f-3ee1d9ec0a69.png#gh-dark-mode-only" width="40%">
-</p>
 
-# Full-Stack Todo List Application
 
-This repository hosts a full-stack Todo List application designed to allow users to create, manage, and organize their tasks efficiently. The application features a React-based frontend and a Node.js backend, utilizing MongoDB for data persistence.
+# Fullstack Todo List Application — Docker Setup Documentation
 
-## Technologies Used
+## Table of Contents
 
-- **Frontend**: React, Material-UI
-- **Backend**: Node.js, Express
-- **Database**: MongoDB
-- **Other Tools**: Vite, React Toastify, Lucide Icons
+1. [Overview](#1-overview)
+2. [Prerequisites](#2-prerequisites)
+3. [Repository Setup](#3-repository-setup)
+4. [Docker Configuration](#4-docker-configuration)
 
-## Project Structure
+   * [Dockerfiles](#41-dockerfiles)
+   * [Docker Compose](#42-docker-compose)
+5. [Running the Application](#5-running-the-application)
 
-The project is divided into two main parts:
-- **Frontend**: Located in the `frontend/` directory with its own [README](frontend/README.md).
-- **Backend**: Located in the `backend/` directory with its own [README](backend/README.md).
+   * [Build and Start](#51-build-and-start)
+   * [Stop and Cleanup](#52-stop-and-cleanup)
+6. [Network and Security Configuration](#6-network-and-security-configuration)
+7. [Troubleshooting](#7-troubleshooting)
+8. [Testing the Setup](#8-testing-the-setup)
+9. [Live Deployment](#9-live-deployment)
+10. [Summary](#10-summary)
 
-## Features
+---
 
-- Create, view, update, and delete todo items.
-- Organize tasks with tags/categories.
-- Responsive user interface adaptable to different screen sizes.
-- Real-time updates without page reloads.
+## 1. Overview
 
-## Contributing
+This document provides instructions for containerizing and running a 3-tier fullstack application using Docker and Docker Compose. The application is composed of:
 
-Contributions are welcome! See the specific README files in the `frontend/` and `backend/` directories for more details on contributing.
+* **Frontend**: React
+* **Backend**: Node.js with Express
+* **Database**: MongoDB
 
-## Live Demo
+Each component runs in its own container, with orchestration handled by Docker Compose.
 
-<h4 align="left">Live Preview is available at https://fullstack-todolist-1.onrender.com/</h4>
+---
 
-## Snapshots
+## 2. Prerequisites
 
-<img src="./Frontend/src/assets/home-snapshot.png" alt="home page"/>
+Ensure the following tools are installed on your machine:
+
+* Docker (version 20.10 or higher)
+* Docker Compose (version 1.27 or higher)
+* Git
+
+---
+
+## 3. Repository Setup
+
+1. Clone the project repository:
+
+   ```bash
+   git clone https://github.com/guderian120/fullstack-todo-list.git
+   cd fullstack-todo-list
+   ```
+
+2. Review the `.env.example` file and create a `.env` file if necessary for environment variable customization.
+
+---
+
+## 4. Docker Configuration
+
+### 4.1 Dockerfiles
+
+Each component includes its own Dockerfile:
+
+* `./Frontend/Dockerfile`
+* `./Backend/Dockerfile`
+* `./Database/Dockerfile`
+
+These Dockerfiles specify the build instructions, dependencies, and runtime configurations for each service.
+
+### 4.2 Docker Compose
+
+The `docker-compose.yml` file coordinates the multi-container setup with:
+
+* Service definitions for frontend, backend, and database
+* Shared Docker bridge network for inter-container communication
+* Named volumes for MongoDB data persistence
+* Environment variables for database access
+* Port mappings for accessing services locally
+
+---
+
+## 5. Running the Application
+
+### 5.1 Build and Start
+
+To build images and start the containers:
+
+```bash
+docker-compose up --build
+```
+
+Access the application using:
+
+* Frontend: [http://localhost:3000](http://localhost:3000)
+* Backend: [http://localhost:5000](http://localhost:5000)
+* MongoDB: Accessible at port 27017 (for development purposes)
+
+### 5.2 Stop and Cleanup
+
+To stop containers:
+
+```bash
+docker-compose down
+```
+
+To stop and remove containers, networks, and volumes:
+
+```bash
+docker-compose down -v
+```
+
+---
+
+## 6. Network and Security Configuration
+
+* **Network**: All services run on a user-defined bridge network (`app-network`) for isolated communication.
+
+* **Ports**:
+
+  | Service  | Host Port | Container Port |
+  | -------- | --------- | -------------- |
+  | Frontend | 3000      | 3000           |
+  | Backend  | 5000      | 5000           |
+  | Database | 27017     | 27017          |
+
+* **Environment Variables**:
+
+  Backend uses:
+
+  ```env
+  MONGODB_URI=mongodb://user:password@database:27017/appdb?authSource=admin
+  ```
+
+  MongoDB service uses:
+
+  ```env
+  MONGO_INITDB_ROOT_USERNAME=user
+  MONGO_INITDB_ROOT_PASSWORD=password
+  MONGO_INITDB_DATABASE=appdb
+  ```
+
+* **Volumes**:
+
+  MongoDB persists data using a named volume (`db-data`) mounted at `/data/db`.
+
+---
+
+## 7. Troubleshooting
+
+| Issue                        | Possible Cause                                    | Solution                                                                                      |
+| ---------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Backend cannot connect to DB | Wrong connection string or service name           | Verify `MONGODB_URI`, service name (`database`), and credentials                              |
+| MongoDB shell not working    | `mongosh` not installed in container              | Use `docker exec -it database mongosh -u user -p password --authenticationDatabase admin`     |
+| Port already in use          | Host port conflict                                | Stop other applications or change the host port in `docker-compose.yml`                       |
+| Containers not starting      | Dockerfile error or build failure                 | Review logs using `docker-compose logs` and correct any syntax or dependency issues           |
+| Data loss on restart         | Volume not mounted correctly                      | Ensure volume `db-data` is defined and mapped to `/data/db` in MongoDB container              |
+| Services unreachable         | Network misconfiguration or container not running | Check container status with `docker ps` and network with `docker network inspect app-network` |
+
+---
+
+## 8. Testing the Setup
+
+A test script (`test-containers.sh`) is available under the `test_connections/` directory to verify the containerized services.
+
+### Usage
+
+```bash
+chmod +x test-containers.sh
+./test-containers.sh
+```
+
+This script performs:
+
+* MongoDB connectivity check using `mongosh`
+* Backend API check at `/api/gettodos`
+* Frontend availability check on port 3000
+
+Expected result: HTTP status code `200` for backend and frontend endpoints.
+
+---
+
+## 9. Live Deployment
+
+The application is also deployed and accessible at:
+
+**[https://todo.34.245.120.229.sslip.io](https://todo.34.245.120.229.sslip.io)**
+
+---
+
+## 10. Summary
+
+This Docker setup enables the development and testing of a fullstack todo application with:
+
+* Independent Dockerfiles for each component
+* Centralized orchestration using Docker Compose
+* Secure handling of environment variables
+* Persistent storage for database data
+* Isolated container networking
+* Built-in testing to validate service operation
+
+Ensure this setup is running locally during your interview, as you will be required to demonstrate it.
