@@ -7,6 +7,7 @@ import {
   Pagination,
   Select,
 } from "@mui/material";
+console.log("Todos component loaded");
 import React, { useEffect, useState } from "react";
 import useDeleteTodo from "../../hooks/useDeleteTodo.js";
 import useGetTodos from "../../hooks/useGetTodos.js";
@@ -57,6 +58,8 @@ const Todos = () => {
     setOpenCancelDialog(false);
   };
 
+  console.log("Todos component rendered with todos:", todos);
+  console.log("Current page:", page, "Limit:", limit);
   const renderTodos = todos?.map((todo) => (
     <Grid key={todo._id} item xl={2.4}>
       <Todo

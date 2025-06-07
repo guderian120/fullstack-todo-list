@@ -22,14 +22,18 @@ import mongoose from "mongoose";
 const app = express();
 const PORT = 3000;
 
-// Use CORS Middleware
-app.use(cors());
 
+// Use CORS Middleware
+app.use(cors({
+  origin: "*", // You can change this to 'http://frontend:8000' if you restrict origin
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 // Middleware to parse JSON data
 app.use(express.json());
 
 // MongoDB Connection URI
-const MONGO_URI = 'mongodb://127.0.0.1:27017';
+const MONGO_URI = process.env.MONGODB_URI;
 //const MONGO_URI = 'mongodb://mongo-shared-dev:fikTpih4U2!@20.218.241.192:27017/?directConnection=true&appName=mongosh+1.8.2&authMechanism=DEFAULT';
 
 const dbname = 'todos';
@@ -73,7 +77,7 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/todos', async (req, res) => {
   const { title, description, activity, date, strStatus } = req.body;
 
-  try {
+  try { 
     const todo = new Todos({
       title,
       description,
@@ -120,7 +124,46 @@ app.get('/api/gettodos', async (req, res) => {
     return res.status(500).send({ message: error });
   }
 });
+console.log("DELETE /api/todos/:id endpoint is being set up");
 
+// DELETE /api/todos/:id
+app.delete("/api/todos/:id", async (req, res) => {
+  try {
+    console.log("trying to delete")
+    const result = await Todos.deleteOne({ _id: req.params.id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    return res.status(204).send(); // No Content
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// PUT /api/todos/:id
+console.log("PUT /api/todos/:id endpoint is being set up");
+app.put("/api/todos/:id", async (req, res) => {
+  const { isCompleted } = req.body;
+  try {
+    const updated = await Todos.findByIdAndUpdate(
+      req.params.id,
+      { isCompleted },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    return res.status(200).json(updated);
+  } catch (error) {
+    console.error(error); 
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 // Routes
 app.get('/', async (req, res) => {
   try {
@@ -135,6 +178,6 @@ app.get('/', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
 

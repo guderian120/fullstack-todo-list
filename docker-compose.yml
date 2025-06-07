@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT}:8000"
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  backend:
+    container_name: backend
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT}:3000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+    networks:
+      - app-network
+    depends_on:
+      - database
+
+  database:
+    container_name: database
+    build:
+      context: ./Database
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${DB_NAME}
+    volumes:
+      - db-data:/data/db
+    ports:
+      - "${DB_PORT}:27017"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge
+
+volumes:
+  db-data:
