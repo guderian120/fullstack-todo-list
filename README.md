@@ -32,6 +32,7 @@ This document provides instructions for containerizing and running a 3-tier full
 * **Database**: MongoDB
 
 Each component runs in its own container, with orchestration handled by Docker Compose.
+NB: Due to the nature of the Docker Compose, I upload the env file to ensure smooth running of containers, Note that this is strictly for testing and debugging
 
 ---
 
