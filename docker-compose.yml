@@ -21,7 +21,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_URI=mongodb://${DB_ROOT_USERNAME}:${DB_ROOT_PASSWORD}@database:27017/${DB_NAME}?authSource=admin
     networks:
       - app-network
     depends_on:
