@@ -7,7 +7,7 @@ services:
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
-      - "${FRONTEND_PORT}:8000"
+      - "8000:8000"
     networks:
       - app-network
     depends_on:
@@ -19,7 +19,7 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     ports:
-      - "${BACKEND_PORT}:3000"
+      - "3000:3000"
     environment:
       - MONGODB_URI=${MONGODB_URI}
     networks:
@@ -39,7 +39,7 @@ services:
     volumes:
       - db-data:/data/db
     ports:
-      - "${DB_PORT}:27017"
+      - "27017:27017"
     networks:
       - app-network
 
