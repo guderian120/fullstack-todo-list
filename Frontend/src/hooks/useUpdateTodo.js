@@ -8,7 +8,7 @@ const useUpdateTodo = (setTodos) => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        `http://host.docker.internal:3000/api/todos/${todo._id}`,
+        `http://localhost:3000/api/todos/${todo._id}`,
         {
           method: "PUT",
           headers: {

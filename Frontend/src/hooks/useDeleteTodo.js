@@ -9,7 +9,7 @@ const useDeleteTodo = (fetchTodos, page, limit) => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        `http://host.docker.internal:3000/api/todos/${id}`,
+        `http://localhost:3000/api/todos/${id}`,
         {
           method: "DELETE",
           headers: {
