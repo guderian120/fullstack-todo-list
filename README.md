@@ -211,7 +211,7 @@ The application is deployed on AWS using a Virtual Private Cloud (VPC) with the 
 
 The application is publicly accessible via the following endpoint:
 
-**[https://todo.34.245.120.229.sslip.io](https://todo.34.245.120.229.sslip.io)**
+**[https://34.245.120.229.sslip.io](https://34.245.120.229.sslip.io/)**
 
 SSL termination is handled at the load balancer level, and domain routing is managed via Route 53 and DNS resolution through sslip.io for demonstration purposes.
 
